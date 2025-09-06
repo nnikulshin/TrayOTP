@@ -5,3 +5,7 @@ TrayOTP is a simple OTP authenticator app that lives in your system tray. Whenev
 ### Dependencies
 
 TrayOTP depends on pyotp, Gtk+ 3.0 and Ayatana-AppIndicator3, as well as the appropriate Python/GI bindings.
+
+### Screenshot
+
+![alt text](Screenshot.png)

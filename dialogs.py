@@ -1,6 +1,7 @@
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+from gi.repository.GObject import Signal
 import pyotp
 import hashlib
 
@@ -30,12 +31,18 @@ class SavedAccountsWindow(Gtk.Window):
 
     self.add(self.main_box)
     self.show_all()
+  
+  @Signal
+  def updated(self):
+    pass
 
   def new_acct(self, _):
     def add_acct(_):
       if (edit_win.changed):
         self.saved_otps.append(edit_win.otp)
         self.otp_list.add(Gtk.Label(edit_win.otp.issuer + ": " + edit_win.otp.name if edit_win.otp.issuer is not None else edit_win.otp.name))
+        self.otp_list.show_all()
+        self.updated.emit()
     edit_win = AcctEditingWindow()
     edit_win.set_transient_for(self)
     edit_win.connect("destroy", add_acct)
@@ -44,6 +51,7 @@ class SavedAccountsWindow(Gtk.Window):
     def update_acct(_):
       if (edit_win.changed):
         sel.get_child().set_label(edit_win.otp.issuer + ": " + edit_win.otp.name if edit_win.otp.issuer is not None else edit_win.otp.name)
+        self.updated.emit()
     sel = self.otp_list.get_selected_row()
     if (sel is not None):
       edit_win = AcctEditingWindow(self.saved_otps[sel.get_index()])
@@ -55,6 +63,7 @@ class SavedAccountsWindow(Gtk.Window):
     if (sel is not None):
       del self.saved_otps[sel.get_index()]
       self.otp_list.remove(sel)
+      self.updated.emit()
 
 class AcctEditingWindow(Gtk.Window):
   def __init__(self, otp=None):
@@ -132,6 +141,6 @@ class AcctEditingWindow(Gtk.Window):
       self.otp.digest = hashlib.sha512
     else:
       self.otp.digest = hashlib.sha1
-    self.otp.interval = self.spn_interval.get_value()
-    self.otp.digits = self.spn_digits.get_value()
+    self.otp.interval = int(self.spn_interval.get_value())
+    self.otp.digits = int(self.spn_digits.get_value())
     self.destroy()

@@ -32,7 +32,7 @@ def quit(_):
   Gtk.main_quit()
 
 def update_menu_and_file(_):
-  global otp_mis, win
+  global otp_mis
   for mi_otp in otp_mis:
     mi_otp.destroy()
   otp_mis = []
@@ -45,13 +45,11 @@ def update_menu_and_file(_):
     file.write(otp.provisioning_uri() + "\n")
   menu.show_all()
   file.close()
-  win = None
 
 def edit(_):
   global win
-  if (win is None):
-    win = SavedAccountsWindow(otps)
-    win.connect("destroy", update_menu_and_file)
+  win = SavedAccountsWindow(otps)
+  win.connect("updated", update_menu_and_file)
 
 menu.append(Gtk.SeparatorMenuItem())
 mi_edit = Gtk.MenuItem("Edit Saved Accounts")
